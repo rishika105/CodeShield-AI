@@ -44,6 +44,15 @@ except (ImportError, ModuleNotFoundError) as e:
     print(f"Error importing explainer: {e}")
     explainer_available = False
 
+# Import score model
+try:
+    from app.models.score_model import ScoreModel
+    score_model_available = True
+    print("Score model loaded successfully")
+except (ImportError, ModuleNotFoundError) as e:
+    print(f"Error importing score model: {e}")
+    score_model_available = False
+
 # Create Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -63,6 +72,9 @@ if ml_scanner_available:
 
 # Initialize explainer if available
 explainer = VulnerabilityExplainer() if explainer_available else None
+
+# Initialize score model if available
+score_model = ScoreModel() if score_model_available else None
 
 # Utility function to convert Vulnerability objects to JSON-serializable dictionaries
 def vulnerability_to_dict(vuln):
@@ -92,6 +104,7 @@ def scan_code():
     - data: The analysis results
       - vulnerabilities: List of detected vulnerabilities
       - language: The detected or provided language
+      - score: Security score details (if score model is available)
     """
     try:
         data = request.get_json()
@@ -130,13 +143,28 @@ def scan_code():
         # Convert vulnerabilities to dictionaries for JSON serialization
         vulnerability_dicts = [vulnerability_to_dict(v) for v in vulnerabilities]
         
+        # Calculate score if score model is available
+        score_details = None
+        if score_model_available and score_model:
+            try:
+                score_details = score_model.get_score_details(vulnerabilities)
+            except Exception as e:
+                print(f"Error calculating score: {e}")
+        
+        # Prepare response
+        response_data = {
+            'vulnerabilities': vulnerability_dicts,
+            'language': language or 'auto-detected'
+        }
+        
+        # Add score details if available
+        if score_details:
+            response_data['score'] = score_details
+        
         # Return the results
         return jsonify({
             'success': True, 
-            'data': {
-                'vulnerabilities': vulnerability_dicts,
-                'language': language or 'auto-detected'
-            }
+            'data': response_data
         })
     
     except Exception as e:
@@ -193,8 +221,72 @@ def health_check():
         'status': 'healthy',
         'scanner': 'available',
         'ml_scanner': ml_scanner_available,
-        'explainer': explainer_available
+        'explainer': explainer_available,
+        'score_model': score_model_available
     })
+
+@app.route('/api/score', methods=['POST'])
+def get_score():
+    """
+    API endpoint to get the security score for previously analyzed code.
+    
+    Expects a JSON object with:
+    - vulnerabilities: List of vulnerabilities from a previous scan
+    
+    Returns:
+    - success: Whether the request was successful
+    - data: The score details
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or 'vulnerabilities' not in data:
+            return jsonify({'success': False, 'error': 'Missing vulnerabilities data'}), 400
+        
+        vulnerabilities_data = data['vulnerabilities']
+        
+        # Convert dictionary data back to Vulnerability objects
+        vulnerabilities = []
+        for vuln_dict in vulnerabilities_data:
+            vuln = Vulnerability(
+                line=vuln_dict.get('line', 0),
+                vulnerability_type=vuln_dict.get('vulnerability_type', 'Unknown'),
+                code_snippet=vuln_dict.get('code_snippet', ''),
+                language=vuln_dict.get('language', 'unknown'),
+                explanation=vuln_dict.get('explanation'),
+                suggested_fix=vuln_dict.get('suggested_fix'),
+                vulnerable_part=vuln_dict.get('vulnerable_part')
+            )
+            vulnerabilities.append(vuln)
+        
+        # Calculate score if score model is available
+        if score_model_available and score_model:
+            try:
+                score_details = score_model.get_score_details(vulnerabilities)
+                return jsonify({
+                    'success': True,
+                    'data': score_details
+                })
+            except Exception as e:
+                print(f"Error calculating score: {e}")
+                return jsonify({
+                    'success': False,
+                    'error': 'Error calculating score',
+                    'message': str(e)
+                }), 500
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Score model not available'
+            }), 500
+    
+    except Exception as e:
+        print(f"Error getting score: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Server error',
+            'message': str(e)
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

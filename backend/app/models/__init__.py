@@ -3,6 +3,7 @@
 # Import models to make them available when importing the package
 from .scanner import CodeScanner, Vulnerability
 from .explainer import VulnerabilityExplainer
+from .score_model import ScoreModel
 
 # Import ML-based models if available
 try:

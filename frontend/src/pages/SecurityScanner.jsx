@@ -316,6 +316,40 @@ const SecurityScanner = () => {
                   <div className="mb-4 p-3 bg-indigoDark-700 rounded-md">
                     <p className="text-gray-400">Language: <span className="text-white">{results.language}</span></p>
                     <p className="text-gray-400">Vulnerabilities Found: <span className="text-white">{results.vulnerabilities.length}</span></p>
+                    
+                    {results.score && (
+                      <div className="mt-3 pt-3 border-t border-indigoDark-600">
+                        <div className="flex justify-between items-center">
+                          <p className="text-gray-400">Security Score:</p>
+                          <div className="flex items-center">
+                            <div className={`text-xl font-bold ${
+                              results.score.score > 30 ? 'text-green-400' : 
+                              results.score.score > 10 ? 'text-yellow-400' : 
+                              'text-red-400'
+                            }`}>
+                              {results.score.score}
+                            </div>
+                            <span className="text-gray-500 ml-1">/ {results.score.base_score}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="w-full bg-indigoDark-900 rounded-full h-2.5 mt-2">
+                          <div 
+                            className={`h-2.5 rounded-full ${
+                              results.score.score > 30 ? 'bg-green-500' : 
+                              results.score.score > 10 ? 'bg-yellow-500' : 
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${Math.max(0, Math.min(100, (results.score.score / results.score.base_score) * 100))}%` }}
+                          ></div>
+                        </div>
+                        
+                        <div className="mt-3 text-xs text-gray-400">
+                          <p>Base Score: {results.score.base_score}</p>
+                          <p>Total Deduction: -{results.score.total_deduction} ({results.score.deduction_per_vulnerability} × {results.score.total_vulnerabilities} vulnerabilities)</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   {results.vulnerabilities.length === 0 ? (
@@ -348,6 +382,20 @@ const SecurityScanner = () => {
                       
                       {activeTab === 'vulnerabilities' && (
                         <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                          {results.score && results.score.vulnerability_types && (
+                            <div className="bg-indigoDark-700 p-3 rounded-md mb-4">
+                              <p className="text-white font-medium mb-2">Vulnerability Breakdown:</p>
+                              <div className="grid grid-cols-2 gap-2">
+                                {Object.entries(results.score.vulnerability_types).map(([type, count]) => (
+                                  <div key={type} className="flex justify-between">
+                                    <span className="text-gray-300 truncate">{type}:</span>
+                                    <span className="text-red-400 font-medium ml-2">{count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
                           {results.vulnerabilities.map((vuln, index) => (
                             <div key={index} className="bg-indigoDark-700 border-l-4 border-red-500 rounded-md p-4">
                               <h3 className="text-lg font-semibold text-white">{vuln.vulnerability_type}</h3>
