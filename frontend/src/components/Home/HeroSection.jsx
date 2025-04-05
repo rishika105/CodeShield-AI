@@ -1,4 +1,5 @@
 import SplitText from "../SplitText";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -34,12 +35,12 @@ const HeroSection = () => {
               Get actionable fixes and security enhancements tailored to your tech stack.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a
-                href="#"
+              <Link
+                to="/security-scanner"
                 className="rounded-md bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:opacity-90 transition-opacity duration-200"
               >
                 Start Free Scan
-              </a>
+              </Link>
               <a
                 href="#"
                 className="rounded-md bg-indigoDark-700 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:bg-indigoDark-600 transition-colors duration-200 border border-indigoDark-500"
