@@ -11,13 +11,13 @@ const HomePage = () => {
     return (
         <div className='flex flex-col'>
             <Navbar />
-         <div className='flex flex-col space-y-16'>
-         <HeroSection />
-            <FeaturesSection />
-            <HowItWorks />
-            <Testimonials />
-            <CTA />
-         </div>
+            <div className='flex flex-col space-y-16'>
+                <HeroSection />
+                <FeaturesSection />
+                <HowItWorks />
+                <Testimonials />
+                <CTA />
+            </div>
             <Footer />
         </div>
     )

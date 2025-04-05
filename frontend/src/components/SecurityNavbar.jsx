@@ -21,6 +21,9 @@ const SecurityNavbar = () => {
             <Link to="/security-scanner" className="text-white font-medium hover:text-neonBlue-400">
               Security Scanner
             </Link>
+            <Link to="/quests" className="text-white font-medium hover:text-neonBlue-400">
+              Security Quests
+            </Link>
             <Link to="/dashboard" className="text-white font-medium hover:text-neonBlue-400">
               Dashboard
             </Link>

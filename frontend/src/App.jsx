@@ -16,7 +16,7 @@ function App() {
   return (
     <AuthProvider>
       <div className="w-full min-h-screen flex flex-col items-center justify-center">
-        {showNavbar && <Navbar />}
+     
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />

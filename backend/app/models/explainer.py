@@ -1,7 +1,6 @@
 import os
 from typing import List, Dict, Optional, Tuple
 import openai
-from openai import OpenAI
 from dotenv import load_dotenv
 from app.models.scanner import Vulnerability
 
@@ -28,7 +27,7 @@ class VulnerabilityExplainer:
             raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY environment variable or pass it to the constructor.")
         
         # Initialize OpenAI client with the newer client library
-        self.client = OpenAI(api_key=self.api_key)
+        self.client = api_key=openai.api_key
         
         # Templates for explanations by vulnerability type (language-agnostic)
         self.explanation_templates = {

@@ -6,11 +6,7 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Product', href: '#features' },
-    { name: 'Solutions', href: '#solutions' },
-    { name: 'Pricing', href: '#pricing' },
     { name: 'Security Quests', href: '/quests' },
-    { name: 'Resources', href: '#resources' },
     { name: 'Security Scanner', href: '/security-scanner' },
     { name: 'Register/Login', href: '/auth' },
   ];
