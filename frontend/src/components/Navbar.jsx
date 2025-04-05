@@ -9,7 +9,7 @@ const Navbar = () => {
     { name: 'Product', href: '#features' },
     { name: 'Solutions', href: '#solutions' },
     { name: 'Pricing', href: '#pricing' },
-    { name: 'Resources', href: '#resources' },
+    { name: 'Security Quests', href: '/quests' },
     { name: 'Register/Login', href: '/auth' },
   ];
 

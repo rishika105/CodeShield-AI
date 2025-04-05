@@ -45,6 +45,21 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
+  },
+  securityQuests: {
+    completedQuests: [{
+      questId: { type: Number, required: true },
+      completedAt: { type: Date, default: Date.now },
+      earnedXP: { type: Number, required: true }
+    }],
+    earnedBadges: [{
+      badgeId: { type: Number, required: true },
+      earnedAt: { type: Date, default: Date.now }
+    }],
+    totalXP: { type: Number, default: 0 },
+    currentStreak: { type: Number, default: 0 },
+    maxStreak: { type: Number, default: 0 },
+    lastCompletedDate: { type: Date }
   }
 }, {
   timestamps: true,
@@ -87,8 +102,11 @@ userSchema.methods.updateSecurityScore = function(newScore) {
   if (this.securityScore >= 70) this.badges.push('expert');
   if (this.securityScore >= 90) this.badges.push('master');
   if (this.securityScore === 100) this.badges.push('legend');
+
+  
   
   return this.save();
+  
 };
 
 module.exports = mongoose.model('User', userSchema);
