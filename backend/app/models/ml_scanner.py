@@ -8,256 +8,277 @@ Note: This is a simplified version that simulates ML-based scanning without the 
 import re
 import logging
 from typing import List, Tuple, Optional
-from app.models.scanner import Vulnerability
+from .scanner import Vulnerability
 
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class VulBERTaModel:
     """
-    Simulated VulBERTa model for detecting code vulnerabilities.
-    VulBERTa is a transformer-based model trained on code with and without vulnerabilities.
-    
-    This is a simplified simulation of the model for demonstration purposes.
+    Dummy implementation of VulBERTa model which is based on RoBERTa for vulnerability detection.
+    This is a simplified version for demonstration purposes.
     """
-    
-    def __init__(self):
-        """Initialize the VulBERTa model simulation."""
-        logger.info("Initializing simulated VulBERTa model")
-        
-        self.vulnerability_indicators = [
-            r'(?i)password\s*=\s*[\'"][^\'"]+[\'"]',
-            r'(?i)eval\s*\(',
-            r'(?i)exec\s*\(',
-            r'(?i)open\s*\(\s*[\'"][^\'"]*[\'"]?\s*\+',
-            r'(?i)innerHTML\s*=',
-            r'(?i)document\.write\s*\(',
-            r'(?i)sql.*?query.*?[\'"].*?\+',
-            r'(?i)\\s*[\'"][\'"].*?%s',
-            r'(?i)exec\s*\([\'"].*?\+',
-            r'(?i)random\.rand',
-            r'(?i)Math\.random',
-            r'(?i)subprocess\.call\(',
-            r'(?i)os\.system\s*\(',  
-            r'(?i)os\.popen\s*\(',  
-            r'(?i)input\s*\('        
-        ]
-    
-    def predict(self, code: str) -> Tuple[bool, float]:
+    def __init__(self, model_path: Optional[str] = None):
         """
-        Predict if the given code contains vulnerabilities.
+        Initialize the VulBERTa model.
         
         Args:
-            code: The code snippet to analyze
+            model_path: Path to the pre-trained model or model name from HuggingFace (optional)
+        """
+        try:
+            # Default model if no path is provided
+            self.model_name = model_path or "huggingface/CodeBERTa-small-v1"  
+            
+            # Load tokenizer and model (dummy implementation)
+            logger.info(f"Loading VulBERTa model from {self.model_name}")
+            logger.info("Using dummy implementation for demonstration")
+            
+            # Mapping of vulnerability indices to types
+            self.vuln_type_mapping = {
+                0: "No vulnerability detected",
+                1: "SQL Injection (VulBERTa)",
+                2: "Cross-Site Scripting (VulBERTa)",
+                3: "Command Injection (VulBERTa)",
+                4: "Hardcoded Credentials (VulBERTa)",
+                5: "Buffer Overflow (VulBERTa)",
+                6: "Insecure Cryptographic Storage (VulBERTa)"
+            }
+            
+            # Explanations for different vulnerability types
+            self.explanations = {
+                "SQL Injection (VulBERTa)": "SQL injection is a code injection technique that exploits a security vulnerability occurring in the database layer of an application. The vulnerability occurs when user input is incorrectly filtered or sanitized before being used in SQL statements.",
+                "Cross-Site Scripting (VulBERTa)": "Cross-Site Scripting (XSS) attacks are a type of injection where malicious scripts are injected into trusted websites. An attacker can use XSS to send a malicious script to an unsuspecting user.",
+                "Command Injection (VulBERTa)": "Command injection is an attack in which the goal is to execute arbitrary commands on the host operating system via a vulnerable application. This type of attack is possible when an application passes unsafe user-supplied data to a system shell.",
+                "Hardcoded Credentials (VulBERTa)": "Hardcoded credentials refer to the practice of embedding authentication credentials (username, password, API key, etc.) directly into the source code. This is a security risk as these credentials are accessible to anyone who has access to the code.",
+                "Buffer Overflow (VulBERTa)": "A buffer overflow occurs when a program writes more data to a buffer than it can hold. This can corrupt adjacent memory, lead to crashes, or allow code execution with elevated privileges.",
+                "Insecure Cryptographic Storage (VulBERTa)": "Insecure cryptographic storage refers to the improper protection of sensitive data. This includes using weak algorithms, improper key management, or insufficient encryption strength."
+            }
+            
+            # Suggested fixes for different vulnerability types
+            self.suggested_fixes = {
+                "SQL Injection (VulBERTa)": "Use parameterized queries or prepared statements instead of building SQL queries through string concatenation. Implement proper input validation and use an ORM (Object-Relational Mapping) library if applicable.",
+                "Cross-Site Scripting (VulBERTa)": "Sanitize and validate all user input before including it in the page content. Use context-specific escaping and consider implementing Content Security Policy (CSP).",
+                "Command Injection (VulBERTa)": "Avoid calling system commands if possible. If necessary, use a library function rather than the system shell. Validate and sanitize all inputs, and use allowlists for permitted characters or commands.",
+                "Hardcoded Credentials (VulBERTa)": "Store credentials in environment variables, configuration files outside the codebase, or a secure credential management system. Never commit sensitive information to version control.",
+                "Buffer Overflow (VulBERTa)": "Use safe functions that perform bounds checking automatically. Consider using languages with automatic memory management. If you must use C/C++, use safer alternatives like strncpy() instead of strcpy().",
+                "Insecure Cryptographic Storage (VulBERTa)": "Use strong, industry-standard cryptographic algorithms. Implement proper key management practices and consider using established cryptographic libraries instead of implementing your own."
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to load VulBERTa model: {str(e)}")
+            raise RuntimeError(f"Failed to load VulBERTa model: {str(e)}")
+    
+    def preprocess_code(self, code_snippet: str) -> str:
+        """
+        Preprocess the code snippet for VulBERTa model.
+        
+        Args:
+            code_snippet: Raw code snippet
             
         Returns:
-            Tuple of (is_vulnerable, confidence_score)
+            Preprocessed code snippet
         """
-        confidence = 0.0
+        # Remove extra whitespace and normalize
+        code_snippet = re.sub(r'\s+', ' ', code_snippet.strip())
+        return code_snippet
+    
+    def predict(self, code_snippet: str) -> Tuple[bool, float, int]:
+        """
+        Predict if a code snippet contains vulnerabilities.
         
-        for indicator in self.vulnerability_indicators:
-            if re.search(indicator, code):
-                confidence += 0.25
-        
-        confidence = min(confidence, 0.95)
-        
-        is_vulnerable = confidence > 0.0
-        
-        return is_vulnerable, confidence
-
+        Args:
+            code_snippet: The code snippet to analyze
+            
+        Returns:
+            Tuple of (is_vulnerable, confidence_score, vulnerability_type_id)
+        """
+        try:
+            # Dummy implementation - look for common vulnerability patterns
+            is_vulnerable = False
+            confidence = 0.0
+            vuln_type_id = 0
+            
+            # Pattern-based detection
+            if 'exec(' in code_snippet.lower() or 'eval(' in code_snippet.lower():
+                is_vulnerable = True
+                confidence = 0.89
+                vuln_type_id = 3  # Command Injection
+            elif 'password' in code_snippet.lower() or 'secret' in code_snippet.lower() or 'api_key' in code_snippet.lower():
+                is_vulnerable = True
+                confidence = 0.85
+                vuln_type_id = 4  # Hardcoded Credentials
+            elif 'select' in code_snippet.lower() and 'from' in code_snippet.lower():
+                is_vulnerable = True
+                confidence = 0.78
+                vuln_type_id = 1  # SQL Injection
+            elif 'innerHTML' in code_snippet.lower() or 'document.write' in code_snippet.lower():
+                is_vulnerable = True
+                confidence = 0.82
+                vuln_type_id = 2  # Cross-Site Scripting
+            elif 'strcpy' in code_snippet.lower() or 'memcpy' in code_snippet.lower():
+                is_vulnerable = True
+                confidence = 0.91
+                vuln_type_id = 5  # Buffer Overflow
+            elif 'md5' in code_snippet.lower() or 'sha1' in code_snippet.lower():
+                is_vulnerable = True
+                confidence = 0.75
+                vuln_type_id = 6  # Insecure Cryptographic Storage
+                
+            return is_vulnerable, confidence, vuln_type_id
+                
+        except Exception as e:
+            logger.error(f"Error predicting with VulBERTa: {str(e)}")
+            return False, 0.0, 0
 
 class VulDeePeckerModel:
     """
-    Simulated VulDeePecker model for detecting vulnerabilities in C/C++ code.
-    
-    This is a simplified simulation of the model for demonstration purposes.
+    Dummy implementation of VulDeePecker model for vulnerability detection.
     """
-    
-    def __init__(self):
-        """Initialize the VulDeePecker model simulation."""
-        logger.info("Initializing simulated VulDeePecker model")
-        
-        self.vulnerability_patterns = {
-            "Buffer Overflow": [
-                r'(?i)strcpy\s*\(',
-                r'(?i)strcat\s*\(',
-                r'(?i)gets\s*\(',
-                r'(?i)sprintf\s*\('
-            ],
-            "Memory Leak": [
-                r'(?i)malloc\s*\(',
-                r'(?i)calloc\s*\(',
-                r'(?i)new\s+'
-            ],
-            "Format String Vulnerability": [
-                r'(?i)printf\s*\([^,]*[,)]',
-                r'(?i)sprintf\s*\([^,]*[,)]'
-            ],
-            "Integer Overflow": [
-                r'(?i)sizeof\s*\(\s*[^)]+\s*\)\s*\*'
-            ],
-            "Use After Free": [
-                r'(?i)free\s*\(\s*\w+\s*\)'
-            ]
-        }
-    
-    def predict(self, code: str) -> List[Tuple[str, int, float, str]]:
+    def __init__(self, model_path: Optional[str] = None):
         """
-        Predict vulnerabilities in C/C++ code.
+        Initialize the VulDeePecker model.
+        
+        Args:
+            model_path: Path to the pre-trained model (optional)
+        """
+        try:
+            # Since VulDeePecker is not directly available in HuggingFace,
+            # we would normally load a custom model from disk.
+            # For this example, we'll simulate the model behavior
+            self.model_path = model_path
+            logger.info("Initializing VulDeePecker model (dummy implementation)")
+            
+            # Vulnerability types that VulDeePecker can detect
+            self.vuln_type_mapping = {
+                0: "Buffer Error (VulDeePecker)",
+                1: "Resource Management Error (VulDeePecker)",
+                2: "Numeric Error (VulDeePecker)",
+                3: "Pointer Error (VulDeePecker)",
+                4: "Memory Leak (VulDeePecker)",
+                5: "Race Condition (VulDeePecker)"
+            }
+            
+            # Explanations for different vulnerability types
+            self.explanations = {
+                "Buffer Error (VulDeePecker)": "Buffer errors occur when operations performed on buffers exceed their allocated size. This can lead to memory corruption, crashes, or even code execution with attacker-controlled data.",
+                "Resource Management Error (VulDeePecker)": "Resource management errors happen when resources like memory, file handles, or network connections are not properly allocated, used, or released, leading to resource leaks or vulnerabilities.",
+                "Numeric Error (VulDeePecker)": "Numeric errors include integer overflow, underflow, division by zero, or other arithmetic errors that can lead to unexpected behavior, crashes, or security vulnerabilities.",
+                "Pointer Error (VulDeePecker)": "Pointer errors involve improper use of pointers, such as null pointer dereferences, use-after-free, or pointer arithmetic errors that can lead to crashes or memory corruption.",
+                "Memory Leak (VulDeePecker)": "Memory leaks occur when allocated memory is not properly freed, leading to resource exhaustion and potential denial of service conditions.",
+                "Race Condition (VulDeePecker)": "Race conditions occur when the timing or ordering of events affects the correctness of a program. In security contexts, they can lead to time-of-check-time-of-use (TOCTOU) vulnerabilities."
+            }
+            
+            # Suggested fixes for different vulnerability types
+            self.suggested_fixes = {
+                "Buffer Error (VulDeePecker)": "Use length-checking functions (e.g., strncpy instead of strcpy). Validate input lengths. Consider using safe languages or libraries that perform automatic bounds checking.",
+                "Resource Management Error (VulDeePecker)": "Implement proper resource acquisition and release patterns. Use RAII (Resource Acquisition Is Initialization) in C++ or try-with-resources in Java. Ensure all resources are properly released in all code paths, including error conditions.",
+                "Numeric Error (VulDeePecker)": "Check for potential overflow/underflow before performing arithmetic operations. Use appropriate data types that can handle the expected range of values. Consider using libraries that provide safe arithmetic operations.",
+                "Pointer Error (VulDeePecker)": "Always validate pointers before dereferencing them. Use smart pointers when available. Avoid raw pointer manipulation when possible. Check for null pointers and ensure proper lifetime management of dynamically allocated objects.",
+                "Memory Leak (VulDeePecker)": "Ensure every malloc/new has a corresponding free/delete. Use smart pointers or garbage collection when available. Consider using static analysis tools to detect memory leaks.",
+                "Race Condition (VulDeePecker)": "Use proper synchronization mechanisms like mutexes, semaphores, or atomic operations. Minimize shared mutable state. Consider using higher-level concurrency abstractions like thread-safe collections or actor models."
+            }
+            
+            # In a real implementation, the model would be loaded here
+            # For this example, we'll simulate the model
+            self.loaded = True
+            logger.info("VulDeePecker model initialized")
+            
+        except Exception as e:
+            logger.error(f"Failed to load VulDeePecker model: {str(e)}")
+            self.loaded = False
+    
+    def extract_code_gadget(self, code: str) -> List[str]:
+        """
+        Extract code gadgets (slices) from the code for analysis.
+        
+        Args:
+            code: The full source code
+            
+        Returns:
+            List of code gadgets/slices
+        """
+        # In a real implementation, this would extract relevant code slices
+        # For simplicity, we'll just split the code into functions/methods
+        lines = code.split('\n')
+        gadgets = []
+        current_gadget = []
+        
+        for line in lines:
+            if re.search(r'(def|class|function|void|int|char|double|float|public|private)\s+\w+\s*\(', line):
+                if current_gadget:
+                    gadgets.append('\n'.join(current_gadget))
+                    current_gadget = []
+            
+            if line.strip():  # Skip empty lines
+                current_gadget.append(line)
+        
+        # Add the last gadget if it exists
+        if current_gadget:
+            gadgets.append('\n'.join(current_gadget))
+            
+        return gadgets
+    
+    def predict(self, code: str) -> List[Tuple[str, int, float, int]]:
+        """
+        Predict vulnerabilities in the code using VulDeePecker.
         
         Args:
             code: The code to analyze
             
         Returns:
-            List of tuples (vulnerability_type, line_number, confidence, id)
+            List of tuples containing (vulnerability_type, line_number, confidence, vuln_type_id)
         """
-        results = []
-        lines = code.split('\n')
+        if not self.loaded:
+            return []
         
-        for i, line in enumerate(lines):
-            line_number = i + 1
+        try:
+            # Extract code gadgets
+            gadgets = self.extract_code_gadget(code)
+            results = []
             
-            for vuln_type, patterns in self.vulnerability_patterns.items():
-                for pattern in patterns:
-                    if re.search(pattern, line):
-                        vuln_id = f"VDP-{vuln_type[:3]}-{line_number:04d}"
-                        confidence = 0.7 + (line_number % 3) * 0.1
-                        
-                        results.append((vuln_type, line_number, confidence, vuln_id))
-        
-        return results
-
+            # In a real implementation, each gadget would be processed by the model
+            # Here we'll simulate the predictions based on patterns
+            for gadget in gadgets:
+                lines = gadget.split('\n')
+                
+                # Simple heuristics for demonstration purposes
+                for i, line in enumerate(lines):
+                    line_number = i + 1
+                    
+                    if 'strcpy' in line or 'memcpy' in line or 'strcat' in line:
+                        results.append(("Buffer Error (VulDeePecker)", line_number, 0.89, 0))
+                    elif 'malloc' in line and not any('free' in l for l in lines):
+                        results.append(("Memory Leak (VulDeePecker)", line_number, 0.75, 4))
+                    elif 'scanf' in line and '%s' in line and not re.search(r'sizeof\s*\(', line):
+                        results.append(("Buffer Error (VulDeePecker)", line_number, 0.92, 0))
+                    elif 'free' in line and any('free' in l for l in lines[i+1:]):
+                        results.append(("Pointer Error (VulDeePecker)", line_number, 0.81, 3))
+                    elif 'pthread_mutex_lock' in line and not any('pthread_mutex_unlock' in l for l in lines[i+1:]):
+                        results.append(("Resource Management Error (VulDeePecker)", line_number, 0.77, 1))
+                    elif '+' in line and re.search(r'[a-zA-Z_]+\s*\+\s*[0-9]+', line):
+                        results.append(("Numeric Error (VulDeePecker)", line_number, 0.65, 2))
+                    elif 'if' in line and any('if ' + re.escape(line.split('if')[1].strip()) in l for l in lines[i+1:]):
+                        results.append(("Race Condition (VulDeePecker)", line_number, 0.70, 5))
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error predicting with VulDeePecker: {str(e)}")
+            return []
 
 class MLScanner:
     """
-    Integrates machine learning-based vulnerability detection models (VulBERTa and VulDeePecker)
-    with the existing code scanner.
+    Combines multiple ML-based vulnerability scanners.
     """
-    def __init__(self, use_vulberta: bool = True, use_vuldeepecker: bool = True):
-        """
-        Initialize the ML-based scanner.
-        
-        Args:
-            use_vulberta: Whether to use the VulBERTa model
-            use_vuldeepecker: Whether to use the VulDeePecker model
-        """
-        self.models = []
-        self.model_names = []
-        
-        if use_vulberta:
-            try:
-                logger.info("Initializing VulBERTa model")
-                self.vulberta = VulBERTaModel()
-                self.models.append(self.vulberta)
-                self.model_names.append("VulBERTa")
-            except Exception as e:
-                logger.error(f"Error initializing VulBERTa: {str(e)}")
-        
-        if use_vuldeepecker:
-            try:
-                logger.info("Initializing VulDeePecker model")
-                self.vuldeepecker = VulDeePeckerModel()
-                self.models.append(self.vuldeepecker)
-                self.model_names.append("VulDeePecker")
-            except Exception as e:
-                logger.error(f"Error initializing VulDeePecker: {str(e)}")
-        
-        logger.info(f"ML Scanner initialized with models: {', '.join(self.model_names)}")
+    def __init__(self):
+        """Initialize ML scanner models."""
+        self.vulberta = VulBERTaModel()
+        self.vuldeepecker = VulDeePeckerModel()
     
-    def scan_with_vulberta(self, code: str, language: str) -> List[Vulnerability]:
+    def scan_code(self, code: str, language: Optional[str] = None) -> List[Vulnerability]:
         """
-        Scan code for vulnerabilities using the VulBERTa model.
-        
-        Args:
-            code: The code to analyze
-            language: The programming language
-            
-        Returns:
-            List of detected vulnerabilities
-        """
-        vulnerabilities = []
-        
-        try:
-            functions = self._split_into_functions(code)
-            
-            for func_info in functions:
-                func_code, start_line = func_info
-                
-                if len(func_code.strip().split('\n')) < 3:
-                    continue
-                
-                is_vulnerable, confidence = self.vulberta.predict(func_code)
-                
-                if is_vulnerable:
-                    suspicious_line_offset = self._find_suspicious_line(func_code)
-                    line_number = start_line + suspicious_line_offset
-                    
-                    func_lines = func_code.split('\n')
-                    if suspicious_line_offset < len(func_lines):
-                        code_snippet = func_lines[suspicious_line_offset]
-                        
-                        vulnerability = Vulnerability(
-                            line=line_number,
-                            vulnerability_type=f"Potential Security Vulnerability (VulBERTa, {confidence:.2f})",
-                            code_snippet=code_snippet,
-                            language=language,
-                            explanation="The ML model detected a potential security vulnerability in this code. Review for unsafe practices.",
-                            vulnerable_part=code_snippet
-                        )
-                        
-                        vulnerabilities.append(vulnerability)
-            
-            return vulnerabilities
-            
-        except Exception as e:
-            logger.error(f"Error scanning with VulBERTa: {str(e)}")
-            return []
-    
-    def scan_with_vuldeepecker(self, code: str, language: str) -> List[Vulnerability]:
-        """
-        Scan code for vulnerabilities using the VulDeePecker model.
-        
-        Args:
-            code: The code to analyze
-            language: The programming language
-            
-        Returns:
-            List of detected vulnerabilities
-        """
-        vulnerabilities = []
-        
-        try:
-            if language.lower() not in ['c', 'cpp', 'c++']:
-                return []
-            
-            predictions = self.vuldeepecker.predict(code)
-            
-            for vuln_type, line_number, confidence, vuln_id in predictions:
-                lines = code.split('\n')
-                if 0 <= line_number - 1 < len(lines):
-                    code_snippet = lines[line_number - 1]
-                    
-                    vulnerability = Vulnerability(
-                        line=line_number,
-                        vulnerability_type=f"{vuln_type} (VulDeePecker, {confidence:.2f})",
-                        code_snippet=code_snippet,
-                        language=language,
-                        explanation=f"The VulDeePecker model detected a potential {vuln_type} vulnerability in this line.",
-                        vulnerable_part=code_snippet
-                    )
-                    
-                    vulnerabilities.append(vulnerability)
-            
-            return vulnerabilities
-            
-        except Exception as e:
-            logger.error(f"Error scanning with VulDeePecker: {str(e)}")
-            return []
-    
-    def scan_code(self, code: str, language: str = None) -> List[Vulnerability]:
-        """
-        Scan code for vulnerabilities using all available ML models.
+        Scan code for vulnerabilities using ML-based models.
         
         Args:
             code: The code to analyze
@@ -266,115 +287,51 @@ class MLScanner:
         Returns:
             List of detected vulnerabilities
         """
-        if language is None:
-            language = self._detect_language(code)
+        vulnerabilities = []
         
-        all_vulnerabilities = []
-        
-        if hasattr(self, 'vulberta'):
-            vulberta_results = self.scan_with_vulberta(code, language)
-            all_vulnerabilities.extend(vulberta_results)
-        
-        if hasattr(self, 'vuldeepecker'):
-            vuldeepecker_results = self.scan_with_vuldeepecker(code, language)
-            all_vulnerabilities.extend(vuldeepecker_results)
-        
-        return all_vulnerabilities
-    
-    def _split_into_functions(self, code: str) -> List[Tuple[str, int]]:
-        """
-        Split the code into functions/methods for analysis.
-        
-        Args:
-            code: The full source code
-            
-        Returns:
-            List of tuples containing (function_code, start_line)
-        """
+        # Process code with VulBERTa
         lines = code.split('\n')
-        functions = []
-        current_function = []
-        start_line = 0
-        in_function = False
-        
         for i, line in enumerate(lines):
-            if re.search(r'(def|class|function|void|int|char|double|float|public|private)\s+\w+\s*\(', line):
-                if in_function:
-                    functions.append(('\n'.join(current_function), start_line))
+            is_vulnerable, confidence, vuln_type_id = self.vulberta.predict(line)
+            
+            if is_vulnerable and confidence > 0.7:
+                vuln_type = self.vulberta.vuln_type_mapping.get(vuln_type_id, "Unknown Vulnerability")
+                explanation = self.vulberta.explanations.get(vuln_type, "No explanation available")
+                suggested_fix = self.vulberta.suggested_fixes.get(vuln_type, "No suggested fix available")
                 
-                current_function = [line]
-                start_line = i + 1
-                in_function = True
-            elif in_function:
-                current_function.append(line)
+                vulnerabilities.append(
+                    Vulnerability(
+                        line=i+1,
+                        vulnerability_type=vuln_type,
+                        code_snippet=line.strip(),
+                        language=language or "unknown",
+                        explanation=explanation,
+                        suggested_fix=suggested_fix
+                    )
+                )
         
-        if in_function:
-            functions.append(('\n'.join(current_function), start_line))
+        # Process code with VulDeePecker
+        vuldeepecker_results = self.vuldeepecker.predict(code)
+        for vuln_type, line_number, confidence, vuln_type_id in vuldeepecker_results:
+            if confidence > 0.6:  # Confidence threshold
+                explanation = self.vuldeepecker.explanations.get(vuln_type, "No explanation available")
+                suggested_fix = self.vuldeepecker.suggested_fixes.get(vuln_type, "No suggested fix available")
+                
+                # Get the code snippet for the line
+                if 0 <= line_number-1 < len(lines):
+                    code_snippet = lines[line_number-1].strip()
+                else:
+                    code_snippet = "Unknown code"
+                
+                vulnerabilities.append(
+                    Vulnerability(
+                        line=line_number,
+                        vulnerability_type=vuln_type,
+                        code_snippet=code_snippet,
+                        language=language or "unknown",
+                        explanation=explanation,
+                        suggested_fix=suggested_fix
+                    )
+                )
         
-        if not functions:
-            functions.append((code, 1))
-        
-        return functions
-    
-    def _find_suspicious_line(self, code: str) -> int:
-        """
-        Heuristically find the most suspicious line in a function.
-        
-        Args:
-            code: The function code
-            
-        Returns:
-            Line offset from the function start
-        """
-        lines = code.strip().split('\n')
-        
-        # Simple heuristics to find suspicious patterns
-        suspicious_patterns = [
-            r'eval\s*\(',                          # eval usage
-            r'exec\s*\(',                          # exec usage
-            r'system\s*\(',                        # system calls
-            r'(strcpy|strcat|sprintf|gets)\s*\(',  # unsafe string functions
-            r'mysql.*\+',                          # potential SQL injection
-            r'shell_exec',                         # shell execution
-            r'innerHTML',                          # potential XSS
-            r'cookie',                             # cookie handling
-            r'password.*=',                        # hardcoded password
-            r'api_?key.*=',                        # hardcoded API key
-            r'random\.',                           # random number generation
-            r'malloc\s*\(',                        # memory allocation
-            r'free\s*\(',                          # memory freeing
-        ]
-        
-        line_scores = [0] * len(lines)
-        
-        for i, line in enumerate(lines):
-            for pattern in suspicious_patterns:
-                if re.search(pattern, line, re.IGNORECASE):
-                    line_scores[i] += 1
-        
-        if max(line_scores) > 0:
-            return line_scores.index(max(line_scores))
-        
-        return len(lines) // 2
-    
-    def _detect_language(self, code: str) -> str:
-        """
-        Simple language detection based on file patterns.
-        
-        Args:
-            code: The code to analyze
-            
-        Returns:
-            Detected language as a string
-        """
-        if re.search(r'(def\s+\w+\s*\(|import\s+\w+|from\s+\w+\s+import)', code):
-            return "python"
-        elif re.search(r'(function\s+\w+\s*\(|const\s+\w+\s*=|let\s+\w+\s*=|var\s+\w+\s*=)', code):
-            return "javascript"
-        elif re.search(r'(#include\s*<|void\s+\w+\s*\(|int\s+\w+\s*\(|char\s+\w+\s*\()', code):
-            return "cpp"
-        elif re.search(r'(<\?php|\$\w+\s*=)', code):
-            return "php"
-        
-        # Default
-        return "unknown" 
+        return vulnerabilities 

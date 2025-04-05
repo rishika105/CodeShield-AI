@@ -10,6 +10,8 @@ const Navbar = () => {
     { name: 'Solutions', href: '#solutions' },
     { name: 'Pricing', href: '#pricing' },
     { name: 'Security Quests', href: '/quests' },
+    { name: 'Resources', href: '#resources' },
+    { name: 'Security Scanner', href: '/security-scanner' },
     { name: 'Register/Login', href: '/auth' },
   ];
 

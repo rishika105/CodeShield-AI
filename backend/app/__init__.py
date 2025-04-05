@@ -1,6 +1,6 @@
 """
-Code Security Analyzer Application
-A tool for detecting, explaining, and fixing security vulnerabilities in code.
+Code Security Analyzer application.
+This package contains modules for analyzing code security vulnerabilities.
 """
 
-__version__ = '1.0.0' 
+__version__ = '0.1.0' 

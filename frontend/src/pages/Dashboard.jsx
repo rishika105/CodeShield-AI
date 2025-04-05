@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -21,12 +21,20 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold text-white">
             Your Security Dashboard
           </h1>
-          <button
-            onClick={logout}
-            className="px-4 py-2 bg-indigoDark-700 hover:bg-indigoDark-600 rounded-md text-white"
-          >
-            Logout
-          </button>
+          <div className="flex space-x-4">
+            <Link 
+              to="/security-scanner" 
+              className="px-4 py-2 bg-neonBlue-600 hover:bg-neonBlue-500 rounded-md text-white"
+            >
+              Security Scanner
+            </Link>
+            <button
+              onClick={logout}
+              className="px-4 py-2 bg-indigoDark-700 hover:bg-indigoDark-600 rounded-md text-white"
+            >
+              Logout
+            </button>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
