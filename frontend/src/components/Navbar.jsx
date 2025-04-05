@@ -10,14 +10,14 @@ const Navbar = () => {
     { name: 'Solutions', href: '#solutions' },
     { name: 'Pricing', href: '#pricing' },
     { name: 'Resources', href: '#resources' },
-    { name: 'Company', href: '#about' },
+    { name: 'Register/Login', href: '/auth' },
   ];
 
   return (
     <header className="w-11/12 max-w-maxContent bg-indigoDark-900 backdrop-blur-md bg-opacity-80 fixed -mt-8 z-50">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1.5">
+          <a href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">CodeShield</span>
             <div className="flex items-center">
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 flex items-center justify-center">
