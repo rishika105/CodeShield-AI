@@ -12,7 +12,7 @@ const HeroSection = () => {
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center">
           <div className="lg:w-1/2 text-center lg:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-satoshi text-gradient-to-r from-neonCyan-400 to-neonBlue-400 leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold  text-gradient-to-r from-neonCyan-400 to-neonBlue-400 leading-tight mb-6">
 
               <SplitText
                 text="AI-Powered"
@@ -29,7 +29,7 @@ const HeroSection = () => {
          Code Security
          </span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-300 font-inter mb-10 max-w-2xl mx-auto lg:mx-0">
+            <p className="text-lg md:text-xl text-gray-300  mb-10 max-w-2xl mx-auto lg:mx-0">
               Detect vulnerabilities in your codebase instantly with our cutting-edge generative AI.
               Get actionable fixes and security enhancements tailored to your tech stack.
             </p>

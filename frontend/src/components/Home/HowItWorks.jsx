@@ -53,10 +53,10 @@ const HowItWorks = () => {
         
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold font-satoshi text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold  text-white mb-4">
               How <span className="bg-clip-text text-transparent bg-gradient-to-r from-neonCyan-400 to-neonBlue-400">CodeShield</span> Works
             </h2>
-            <p className="text-lg text-gray-300 font-inter max-w-3xl mx-auto">
+            <p className="text-lg text-gray-300  max-w-3xl mx-auto">
               Our AI-powered security platform integrates seamlessly into your development workflow.
             </p>
           </div>
@@ -70,7 +70,7 @@ const HowItWorks = () => {
                 key={index}
                 className="relative bg-indigoDark-700/50 rounded-xl p-6 border border-indigoDark-600 hover:border-neonPurple-400 transition-all duration-300 group"
               >
-                <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 flex items-center justify-center text-white font-bold font-satoshi">
+                <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 flex items-center justify-center text-white font-bold ">
                   {step.number}
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-indigoDark-600 group-hover:bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 flex items-center justify-center mb-4 transition-all duration-300 ml-6">
@@ -78,8 +78,8 @@ const HowItWorks = () => {
                     {step.icon}
                   </div>
                 </div>
-                <h3 className="text-xl font-bold font-satoshi text-white mb-2">{step.title}</h3>
-                <p className="text-gray-300 font-inter">{step.description}</p>
+                <h3 className="text-xl font-bold  text-white mb-2">{step.title}</h3>
+                <p className="text-gray-300 ">{step.description}</p>
               </div>
             ))}
           </div>

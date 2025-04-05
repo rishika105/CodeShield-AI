@@ -28,10 +28,10 @@ const Testimonials = () => {
         
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold font-satoshi text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold  text-white mb-4">
               Trusted by <span className="bg-clip-text text-transparent bg-gradient-to-r from-neonCyan-400 to-neonBlue-400">Developers</span> Worldwide
             </h2>
-            <p className="text-lg text-gray-300 font-inter max-w-3xl mx-auto">
+            <p className="text-lg text-gray-300  max-w-3xl mx-auto">
               Join thousands of teams who've made their codebases more secure with AI.
             </p>
           </div>
@@ -49,14 +49,14 @@ const Testimonials = () => {
                     </svg>
                   ))}
                 </div>
-                <p className="text-gray-200 font-inter italic mb-6">"{testimonial.quote}"</p>
+                <p className="text-gray-200  italic mb-6">"{testimonial.quote}"</p>
                 <div className="flex items-center">
                   <div className="w-12 h-12 rounded-full bg-indigoDark-700 overflow-hidden mr-4">
                     <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
                   </div>
                   <div>
-                    <h4 className="text-white font-satoshi font-bold">{testimonial.name}</h4>
-                    <p className="text-gray-400 font-inter text-sm">{testimonial.title}</p>
+                    <h4 className="text-white  font-bold">{testimonial.name}</h4>
+                    <p className="text-gray-400  text-sm">{testimonial.title}</p>
                   </div>
                 </div>
               </div>

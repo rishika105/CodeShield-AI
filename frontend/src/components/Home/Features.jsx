@@ -65,13 +65,13 @@ const FeaturesSection = () => {
         
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold font-satoshi text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold  text-white mb-4">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-neonCyan-400 to-neonBlue-400">
                 Next-Gen
               </span>{' '}
               Security Features
             </h2>
-            <p className="text-lg text-gray-300 font-inter max-w-3xl mx-auto">
+            <p className="text-lg text-gray-300  max-w-3xl mx-auto">
               Our AI-driven platform goes beyond traditional scanners to provide comprehensive protection 
               throughout your development lifecycle.
             </p>
@@ -88,8 +88,8 @@ const FeaturesSection = () => {
                     {feature.icon}
                   </div>
                 </div>
-                <h3 className="text-xl font-bold font-satoshi text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-300 font-inter">{feature.description}</p>
+                <h3 className="text-xl font-bold  text-white mb-2">{feature.title}</h3>
+                <p className="text-gray-300 ">{feature.description}</p>
               </div>
             ))}
           </div>

@@ -49,9 +49,9 @@ const Footer = () => {
                     <path fillRule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <span className="ml-2 text-white font-satoshi font-bold text-xl">CodeShield</span>
+                <span className="ml-2 text-white  font-bold text-xl">CodeShield</span>
               </div>
-              <p className="text-gray-400 font-inter mb-6 w-3/4">
+              <p className="text-gray-400  mb-6 w-3/4">
                 AI-powered code security that finds and fixes vulnerabilities before they reach production.
               </p>
               <div className="flex space-x-4">
@@ -78,13 +78,13 @@ const Footer = () => {
             
             {links.map((link) => (
               <div key={link.title}>
-                <h3 className="text-white font-satoshi font-semibold mb-4">{link.title}</h3>
+                <h3 className="text-white  font-semibold mb-4">{link.title}</h3>
                 <ul className="space-y-3">
                   {link.items.map((item) => (
                     <li key={item.name}>
                       <a
                         href={item.href}
-                        className="text-gray-400 font-inter hover:text-white transition-colors duration-200"
+                        className="text-gray-400  hover:text-white transition-colors duration-200"
                       >
                         {item.name}
                       </a>
@@ -96,17 +96,17 @@ const Footer = () => {
           </div>
           
           <div className="mt-12 pt-8 border-t border-indigoDark-800 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 font-inter text-sm">
+            <p className="text-gray-500  text-sm">
               &copy; {new Date().getFullYear()} CodeShield. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-500 hover:text-gray-400 font-inter text-sm transition-colors duration-200">
+              <a href="#" className="text-gray-500 hover:text-gray-400  text-sm transition-colors duration-200">
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-500 hover:text-gray-400 font-inter text-sm transition-colors duration-200">
+              <a href="#" className="text-gray-500 hover:text-gray-400  text-sm transition-colors duration-200">
                 Terms of Service
               </a>
-              <a href="#" className="text-gray-500 hover:text-gray-400 font-inter text-sm transition-colors duration-200">
+              <a href="#" className="text-gray-500 hover:text-gray-400  text-sm transition-colors duration-200">
                 Cookies
               </a>
             </div>

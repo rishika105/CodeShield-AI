@@ -11,10 +11,10 @@ const CTA = () => {
             <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-neonBlue-500 rounded-full filter blur-3xl opacity-20"></div>
             
             <div className="relative z-10 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold font-satoshi text-white mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold  text-white mb-6">
                 Ready to <span className="bg-clip-text text-transparent bg-gradient-to-r from-neonCyan-400 to-neonBlue-400">Secure Your Code</span> with AI?
               </h2>
-              <p className="text-lg text-gray-300 font-inter max-w-3xl mx-auto mb-8">
+              <p className="text-lg text-gray-300  max-w-3xl mx-auto mb-8">
                 Join thousands of developers who trust CodeShield to find and fix vulnerabilities before they reach production.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

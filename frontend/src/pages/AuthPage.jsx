@@ -22,7 +22,7 @@ const AuthPage = () => {
 
               <div className="relative z-10">
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold font-satoshi text-white mb-2">
+                  <h1 className="text-3xl font-bold  text-white mb-2">
                     {isLogin ? (
                       <span className="bg-clip-text text-transparent bg-gradient-to-r from-neonCyan-400 to-neonBlue-400">
                         Welcome Back
@@ -33,7 +33,7 @@ const AuthPage = () => {
                       </span>
                     )}
                   </h1>
-                  <p className="text-gray-300 font-inter">
+                  <p className="text-gray-300 ">
                     {isLogin ? 'Secure your code with AI' : 'Start your security journey'}
                   </p>
                 </div>
