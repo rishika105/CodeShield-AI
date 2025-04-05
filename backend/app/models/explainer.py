@@ -5,7 +5,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from app.models.scanner import Vulnerability
 
-# Load environment variables
 load_dotenv()
 
 
@@ -22,15 +21,12 @@ class VulnerabilityExplainer:
         Args:
             api_key: OpenAI API key (optional, defaults to env var)
         """
-        # Use provided API key or get from environment variables
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY environment variable or pass it to the constructor.")
         
-        # Initialize OpenAI client with the newer client library
         self.client = OpenAI(api_key=self.api_key)
         
-        # Templates for explanations by vulnerability type (language-agnostic)
         self.explanation_templates = {
             "Hardcoded Password/API Key": (
                 "This code contains a hardcoded password or API key, which is a security risk. "
@@ -112,7 +108,6 @@ class VulnerabilityExplainer:
             ),
         }
         
-        # Language-specific templates for suggested fixes
         self.fix_templates: Dict[str, Dict[str, str]] = {
             "python": {
                 "Hardcoded Password/API Key": (
@@ -301,41 +296,29 @@ class VulnerabilityExplainer:
         Returns:
             The same list of vulnerabilities, but with added explanations
         """
-        # Check if any of the vulnerabilities are using old-style Vulnerability class (without vulnerable_part)
-        # If so, update them to include the vulnerable_part field
         for vuln in vulnerabilities:
-            # Add vulnerable_part if it doesn't exist
             if not hasattr(vuln, 'vulnerable_part') or vuln.vulnerable_part is None:
-                # Create the vulnerable_part if needed
                 if hasattr(vuln, 'code_snippet'):
-                    # Use the whole code snippet as the vulnerable part if no specific part is identified
                     vuln.vulnerable_part = vuln.code_snippet
                 
         for vuln in vulnerabilities:
-            # Get the base vulnerability type without any suffixes
             vuln_type = vuln.vulnerability_type
-            base_type = vuln_type.split(" (")[0]  # Remove the "(AST)" suffix if present
+            base_type = vuln_type.split(" (")[0]  
             
-            # Apply template explanation if available
             if base_type in self.explanation_templates:
                 vuln.explanation = self.explanation_templates[base_type]
             
-            # Apply language-specific fix suggestion if available
             language = vuln.language.lower()
-            # Handle C++ variations
             if language in ["c++", "cpp"]:
                 language = "cpp"
-            # Handle JavaScript variations
             elif language in ["js", "javascript"]:
                 language = "javascript"
                 
             if language in self.fix_templates and base_type in self.fix_templates[language]:
                 vuln.suggested_fix = self.fix_templates[language][base_type]
             elif "python" in self.fix_templates and base_type in self.fix_templates["python"]:
-                # Fallback to Python fixes if language-specific fix is not available
                 vuln.suggested_fix = self.fix_templates["python"][base_type]
             
-            # For customized explanations, use OpenAI API
             if vuln.explanation is None or "_custom_" in vuln.vulnerability_type:
                 self._generate_ai_explanation(vuln)
             
@@ -348,16 +331,12 @@ class VulnerabilityExplainer:
         Args:
             vulnerability: The vulnerability to explain
         """
-        # Check if we have a predefined template for this vulnerability type
         if vulnerability.vulnerability_type in self.explanation_templates:
-            # Use predefined explanation
             vulnerability.explanation = self.explanation_templates[vulnerability.vulnerability_type]
             
-            # Use language-specific fix suggestion if available
             if vulnerability.language in self.fix_templates and vulnerability.vulnerability_type in self.fix_templates[vulnerability.language]:
                 vulnerability.suggested_fix = self.fix_templates[vulnerability.language][vulnerability.vulnerability_type]
             else:
-                # Get the appropriate language map
                 if vulnerability.language in ["c", "cpp", "c++"]:
                     lang_key = "cpp"
                 elif vulnerability.language == "js":
@@ -365,13 +344,10 @@ class VulnerabilityExplainer:
                 else:
                     lang_key = vulnerability.language
                 
-                # Try to get a fix suggestion for the detected language
                 if lang_key in self.fix_templates and vulnerability.vulnerability_type in self.fix_templates[lang_key]:
                     vulnerability.suggested_fix = self.fix_templates[lang_key][vulnerability.vulnerability_type]
                 else:
-                    # Fall back to AI-generated fix suggestion
                     try:
-                        # Prepare the prompt for the fix suggestion
                         fix_prompt = f"""
                         The following code in {vulnerability.language} has a security vulnerability of type "{vulnerability.vulnerability_type}":
                         
@@ -391,7 +367,6 @@ class VulnerabilityExplainer:
                         Additional explanation about the fix."
                         """
                         
-                        # Call the OpenAI API
                         response = self.client.chat.completions.create(
                             model="gpt-3.5-turbo",
                             messages=[
@@ -402,17 +377,13 @@ class VulnerabilityExplainer:
                             temperature=0.2
                         )
                         
-                        # Extract the generated fix suggestion
                         vulnerability.suggested_fix = response.choices[0].message.content.strip()
                     except Exception as e:
-                        # If API call fails, provide a generic fix suggestion
                         vulnerability.suggested_fix = f"Fix not available due to API error: {str(e)}"
                 
             return
             
-        # For unknown vulnerability types, generate explanation with AI
         try:
-            # Prepare the prompt
             prompt = f"""
             Analyze this line of {vulnerability.language} code that has been flagged for a potential security vulnerability of type "{vulnerability.vulnerability_type}":
             
@@ -426,7 +397,6 @@ class VulnerabilityExplainer:
             Format your response with the fixed code example in a code block marked with triple backticks.
             """
             
-            # Call the OpenAI API
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -437,10 +407,8 @@ class VulnerabilityExplainer:
                 temperature=0.2
             )
             
-            # Extract the generated explanation from the new client response format
             ai_response = response.choices[0].message.content.strip()
             
-            # Split the response into explanation and fix
             import re
             explanation_match = re.search(r'^(.*?)(?=```|Example fix:|$)', ai_response, re.DOTALL)
             
@@ -449,15 +417,11 @@ class VulnerabilityExplainer:
             else:
                 vulnerability.explanation = "This code may contain a security vulnerability. Review and fix according to security best practices."
             
-            # Try to extract the fix suggestion with code example
             code_block_match = re.search(r'```.*?\n(.*?)```', ai_response, re.DOTALL)
             if code_block_match:
-                # Extract the code inside the code block
                 code_example = code_block_match.group(1).strip()
-                # Add some explanation text
                 vulnerability.suggested_fix = f"Consider using a safer approach:\n\n```\n{code_example}\n```"
             else:
-                # If no code block is found, use the remaining text after the explanation
                 remaining_text = ai_response[len(vulnerability.explanation):].strip()
                 if remaining_text:
                     vulnerability.suggested_fix = remaining_text
@@ -465,7 +429,6 @@ class VulnerabilityExplainer:
                     vulnerability.suggested_fix = "Review security best practices for this type of vulnerability."
                 
         except Exception as e:
-            # If API call fails, provide generic explanation and fix
             vulnerability.explanation = f"This code contains a potential {vulnerability.vulnerability_type} vulnerability that could pose security risks."
             vulnerability.suggested_fix = f"Fix not available due to API error: {str(e)}"
 
@@ -480,17 +443,13 @@ class VulnerabilityExplainer:
         Returns:
             Tuple of (fixed_code, explanation_of_changes)
         """
-        # Split code into lines to isolate the vulnerable section
         code_lines = code.split('\n')
         
-        # Determine the context range - for better AI understanding
         context_start = max(0, vulnerability.line - 5)
         context_end = min(len(code_lines), vulnerability.line + 5)
         
-        # Get the vulnerable section with surrounding context
         vulnerable_section = '\n'.join(code_lines[context_start:context_end])
         
-        # Prepare the prompt
         prompt = f"""
         The following {vulnerability.language} code has a security vulnerability of type "{vulnerability.vulnerability_type}" on line {vulnerability.line - context_start + 1} of this snippet:
         
@@ -506,7 +465,6 @@ class VulnerabilityExplainer:
         """
         
         try:
-            # Call the OpenAI API
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -517,38 +475,29 @@ class VulnerabilityExplainer:
                 temperature=0.2
             )
             
-            # Extract the generated fix
             ai_response = response.choices[0].message.content.strip()
             
-            # Try to extract the code block
             import re
             code_block_match = re.search(r'```.*?\n(.*?)```', ai_response, re.DOTALL)
             
             if code_block_match:
-                # Extract the fixed code
                 fixed_section = code_block_match.group(1).strip()
                 
-                # Extract the explanation (text after the code block)
                 explanation_match = re.search(r'```.*?```\s*(.*)', ai_response, re.DOTALL)
                 explanation = explanation_match.group(1).strip() if explanation_match else "Security vulnerability fixed."
                 
-                # Create a new version of the full code with the fixed section
                 fixed_code_lines = code_lines.copy()
                 fixed_section_lines = fixed_section.split('\n')
                 
-                # Replace the original lines with the fixed lines
                 for i in range(context_start, context_end):
                     if i - context_start < len(fixed_section_lines) and i < len(fixed_code_lines):
                         fixed_code_lines[i] = fixed_section_lines[i - context_start]
                 
-                # Join the lines back together
                 fixed_code = '\n'.join(fixed_code_lines)
                 
                 return fixed_code, explanation
             else:
-                # If no code block is found, return the original code with an error message
                 return code, "Automatic fix could not be generated. Please review the vulnerability manually."
                 
         except Exception as e:
-            # If API call fails, return the original code with an error message
             return code, f"Automatic fix failed due to API error: {str(e)}" 
