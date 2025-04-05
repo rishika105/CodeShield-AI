@@ -53,6 +53,24 @@ except (ImportError, ModuleNotFoundError) as e:
     print(f"Error importing score model: {e}")
     score_model_available = False
 
+# Import exploit simulator
+try:
+    from app.models.exploit_simulator import ExploitSimulator
+    exploit_simulator_available = True
+    print("Exploit simulator loaded successfully")
+except (ImportError, ModuleNotFoundError) as e:
+    print(f"Error importing exploit simulator: {e}")
+    exploit_simulator_available = False
+
+# Import advanced analyzer
+try:
+    from app.models.advanced_analyzer import SecurityCodeAnalyzer
+    advanced_analyzer_available = True
+    print("Advanced code analyzer loaded successfully")
+except (ImportError, ModuleNotFoundError) as e:
+    print(f"Error importing advanced analyzer: {e}")
+    advanced_analyzer_available = False
+
 # Create Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -75,6 +93,36 @@ explainer = VulnerabilityExplainer() if explainer_available else None
 
 # Initialize score model if available
 score_model = ScoreModel() if score_model_available else None
+
+# Initialize exploit simulator if available
+exploit_simulator = ExploitSimulator() if exploit_simulator_available else None
+
+# Initialize advanced analyzer if available
+advanced_analyzer = None
+if advanced_analyzer_available:
+    try:
+        # Check if GOOGLE_API_KEY is available, and use it with higher priority
+        google_api_key = os.getenv("GOOGLE_API_KEY")
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        
+        if google_api_key:
+            # Use Gemini if Google API key is available
+            print("Google API key found, using Gemini API")
+            api_key = google_api_key
+            use_gemini = True
+        elif openai_api_key:
+            # Fallback to OpenAI only if no Google API key is available
+            print("No Google API key found, falling back to OpenAI API")
+            api_key = openai_api_key
+            use_gemini = False
+        else:
+            raise ValueError("No API keys found for either Gemini or OpenAI")
+            
+        advanced_analyzer = SecurityCodeAnalyzer(api_key=api_key, use_gemini=use_gemini)
+        print(f"Advanced analyzer initialized (Using {'Gemini' if use_gemini else 'OpenAI'})")
+    except Exception as e:
+        print(f"Error initializing advanced analyzer: {e}")
+        advanced_analyzer_available = False
 
 # Utility function to convert Vulnerability objects to JSON-serializable dictionaries
 def vulnerability_to_dict(vuln):
@@ -222,7 +270,9 @@ def health_check():
         'scanner': 'available',
         'ml_scanner': ml_scanner_available,
         'explainer': explainer_available,
-        'score_model': score_model_available
+        'score_model': score_model_available,
+        'exploit_simulator': exploit_simulator_available,
+        'advanced_analyzer': advanced_analyzer_available
     })
 
 @app.route('/api/score', methods=['POST'])
@@ -282,6 +332,411 @@ def get_score():
     
     except Exception as e:
         print(f"Error getting score: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Server error',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/playground/supported_vulnerabilities', methods=['GET'])
+def get_supported_vulnerability_types():
+    """
+    API endpoint to get vulnerability types supported by the exploit simulator.
+    
+    Returns:
+    - success: Whether the request was successful
+    - data: List of supported vulnerability types
+    """
+    try:
+        if not exploit_simulator_available or not exploit_simulator:
+            return jsonify({
+                'success': False,
+                'error': 'Exploit simulator not available'
+            }), 500
+            
+        supported_vulnerabilities = exploit_simulator.get_supported_vulnerabilities()
+        
+        return jsonify({
+            'success': True,
+            'data': supported_vulnerabilities
+        })
+    
+    except Exception as e:
+        print(f"Error getting supported vulnerabilities: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Server error',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/playground/simulate', methods=['POST'])
+def simulate_exploit():
+    """
+    API endpoint to simulate an exploit against a piece of code.
+    
+    Expects a JSON object with:
+    - code: The vulnerable code
+    - vulnerability_type: Type of vulnerability to exploit
+    - language: Programming language of the code
+    - input: Optional input data to simulate user input (for some vulnerabilities)
+    
+    Returns:
+    - success: Whether the request was successful
+    - data: The simulation results
+    """
+    try:
+        if not exploit_simulator_available or not exploit_simulator:
+            return jsonify({
+                'success': False,
+                'error': 'Exploit simulator not available'
+            }), 500
+            
+        data = request.get_json()
+        
+        if not data or 'code' not in data or 'vulnerability_type' not in data:
+            return jsonify({
+                'success': False, 
+                'error': 'Missing required parameters (code, vulnerability_type)'
+            }), 400
+        
+        code = data['code']
+        vulnerability_type = data['vulnerability_type']
+        language = data.get('language', 'python')
+        
+        # Simulate the exploit
+        simulation_result = exploit_simulator.simulate_exploit(code, vulnerability_type, language)
+        
+        # Return the results
+        return jsonify({
+            'success': True,
+            'data': simulation_result
+        })
+    
+    except Exception as e:
+        print(f"Error simulating exploit: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Server error',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/playground/examples', methods=['GET'])
+def get_vulnerability_examples():
+    """
+    API endpoint to get example vulnerable code for different vulnerability types.
+    
+    Query parameters:
+    - vulnerability_type: Type of vulnerability to get examples for
+    - language: Programming language (default: python)
+    
+    Returns:
+    - success: Whether the request was successful
+    - data: Example code and metadata
+    """
+    try:
+        vulnerability_type = request.args.get('vulnerability_type')
+        language = request.args.get('language', 'python')
+        
+        if not vulnerability_type:
+            return jsonify({
+                'success': False, 
+                'error': 'Missing vulnerability_type parameter'
+            }), 400
+            
+        # Examples for different vulnerability types
+        examples = {
+            "SQL Injection Risk": {
+                "python": {
+                    "code": """
+# Vulnerable to SQL Injection
+import sqlite3
+
+def authenticate(username, password):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    
+    # Vulnerable: Directly inserting user input into query
+    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+    cursor.execute(query)
+    
+    user = cursor.fetchone()
+    conn.close()
+    
+    return user is not None
+                    """,
+                    "description": "This function is vulnerable to SQL injection because it directly concatenates user input into the SQL query string."
+                },
+                "javascript": {
+                    "code": """
+// Vulnerable to SQL Injection
+const mysql = require('mysql');
+
+function authenticateUser(username, password) {
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'dbuser',
+    password: 'dbpass',
+    database: 'users'
+  });
+  
+  // Vulnerable: Directly inserting user input into query
+  const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+  
+  connection.query(query, (error, results) => {
+    if (error) throw error;
+    return results.length > 0;
+  });
+}
+                    """,
+                    "description": "This function is vulnerable to SQL injection because it directly concatenates user input into the SQL query string using template literals."
+                }
+            },
+            "XSS Risk": {
+                "python": {
+                    "code": """
+# Vulnerable to XSS (Cross-Site Scripting)
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/welcome')
+def welcome():
+    username = request.args.get('username', '')
+    
+    # Vulnerable: Directly inserting user input into HTML
+    return f'''
+        <html>
+            <body>
+                <h1>Welcome, {username}!</h1>
+            </body>
+        </html>
+    '''
+
+if __name__ == '__main__':
+    app.run()
+                    """,
+                    "description": "This Flask route is vulnerable to XSS because it directly inserts user input into the HTML response without escaping it."
+                },
+                "javascript": {
+                    "code": """
+// Vulnerable to XSS (Cross-Site Scripting)
+const express = require('express');
+const app = express();
+
+app.get('/welcome', (req, res) => {
+  const username = req.query.username || '';
+  
+  // Vulnerable: Directly inserting user input into HTML
+  res.send(`
+    <html>
+      <body>
+        <h1>Welcome, ${username}!</h1>
+      </body>
+    </html>
+  `);
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+                    """,
+                    "description": "This Express route is vulnerable to XSS because it directly inserts user input into the HTML response without escaping it."
+                }
+            },
+            "Command Injection Risk": {
+                "python": {
+                    "code": """
+# Vulnerable to Command Injection
+import os
+import subprocess
+
+def ping_host(hostname):
+    # Vulnerable: Directly using user input in a command
+    command = f"ping -c 1 {hostname}"
+    
+    # Execute the command
+    result = subprocess.check_output(command, shell=True)
+    return result.decode('utf-8')
+                    """,
+                    "description": "This function is vulnerable to command injection because it directly uses user input in a shell command without proper validation."
+                },
+                "javascript": {
+                    "code": """
+// Vulnerable to Command Injection
+const { exec } = require('child_process');
+
+function pingHost(hostname) {
+  // Vulnerable: Directly using user input in a command
+  const command = `ping -c 1 ${hostname}`;
+  
+  // Execute the command
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(stdout);
+    });
+  });
+}
+                    """,
+                    "description": "This function is vulnerable to command injection because it directly uses user input in a shell command without proper validation."
+                }
+            },
+            "Eval Usage": {
+                "python": {
+                    "code": """
+# Vulnerable to Code Injection via eval()
+def calculate(expression):
+    # Vulnerable: Directly executing user input as code
+    result = eval(expression)
+    return result
+
+def process_user_input():
+    expr = input("Enter a mathematical expression: ")
+    result = calculate(expr)
+    print(f"Result: {result}")
+                    """,
+                    "description": "This function is vulnerable to code injection because it directly passes user input to the eval() function, which executes arbitrary Python code."
+                },
+                "javascript": {
+                    "code": """
+// Vulnerable to Code Injection via eval()
+function calculate(expression) {
+  // Vulnerable: Directly executing user input as code
+  const result = eval(expression);
+  return result;
+}
+
+function processUserInput() {
+  const expr = prompt("Enter a mathematical expression:");
+  const result = calculate(expr);
+  console.log(`Result: ${result}`);
+}
+                    """,
+                    "description": "This function is vulnerable to code injection because it directly passes user input to the eval() function, which executes arbitrary JavaScript code."
+                }
+            },
+            "Hardcoded Password/API Key": {
+                "python": {
+                    "code": """
+# Vulnerable to Credential Disclosure
+import requests
+
+def fetch_weather_data(city):
+    # Vulnerable: Hardcoded API key in source code
+    api_key = "a1b2c3d4e5f6g7h8i9j0"
+    
+    url = f"https://api.weather.com/data?city={city}&key={api_key}"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+                    """,
+                    "description": "This function contains a hardcoded API key in the source code, which is a security risk if the code is accessible to unauthorized individuals."
+                },
+                "javascript": {
+                    "code": """
+// Vulnerable to Credential Disclosure
+const axios = require('axios');
+
+async function fetchWeatherData(city) {
+  // Vulnerable: Hardcoded API key in source code
+  const apiKey = "a1b2c3d4e5f6g7h8i9j0";
+  
+  const url = `https://api.weather.com/data?city=${city}&key=${apiKey}`;
+  
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+    return null;
+  }
+}
+                    """,
+                    "description": "This function contains a hardcoded API key in the source code, which is a security risk if the code is accessible to unauthorized individuals."
+                }
+            }
+        }
+        
+        # Get examples for the requested vulnerability type and language
+        if vulnerability_type in examples:
+            if language in examples[vulnerability_type]:
+                return jsonify({
+                    'success': True,
+                    'data': examples[vulnerability_type][language]
+                })
+            else:
+                # Default to python if the requested language is not available
+                return jsonify({
+                    'success': True,
+                    'data': examples[vulnerability_type]['python']
+                })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f"No examples available for {vulnerability_type}"
+            }), 404
+    
+    except Exception as e:
+        print(f"Error getting vulnerability examples: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Server error',
+            'message': str(e)
+        }), 500
+
+# Add the advanced analyzer endpoint
+@app.route('/api/advanced-scan', methods=['POST'])
+def advanced_scan_code():
+    """
+    API endpoint to analyze code using the advanced AI-based analyzer.
+    
+    Expects a JSON object with:
+    - code: The code to analyze
+    - language: The programming language (optional)
+    
+    Returns:
+    - success: Whether the request was successful
+    - data: The analysis results including detailed vulnerability information
+    """
+    try:
+        if not advanced_analyzer_available or not advanced_analyzer:
+            return jsonify({
+                'success': False,
+                'error': 'Advanced analyzer not available'
+            }), 500
+            
+        data = request.get_json()
+        
+        if not data or 'code' not in data:
+            return jsonify({'success': False, 'error': 'Missing code'}), 400
+        
+        code = data['code']
+        language = data.get('language', None)
+        
+        # Use the advanced analyzer
+        analysis_result = advanced_analyzer.analyze_code(code, language)
+        
+        # Check if there was an error
+        if 'error' in analysis_result:
+            return jsonify({
+                'success': False, 
+                'error': analysis_result['error']
+            }), 500
+            
+        # Return the analysis results
+        return jsonify({
+            'success': True,
+            'data': analysis_result
+        })
+    
+    except Exception as e:
+        print(f"Error analyzing code with advanced analyzer: {e}")
         return jsonify({
             'success': False,
             'error': 'Server error',

@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import AuthPage from './pages/AuthPage';
 import SecurityScanner from './pages/SecurityScanner';
+import AIPlayground from './pages/AIPlayground';
 import { AuthProvider } from './context/AuthContext';
 import QuestsPage from './pages/QuestPage';
 import QuestChallenge from './components/quests/QuestChallenge';
@@ -24,6 +25,7 @@ function App() {
           <Route path="/quests" element={<QuestsPage />} />
           <Route path="/quests/:id" element={<QuestChallenge />} />
           <Route path="/security-scanner" element={<SecurityScanner />} />
+          <Route path="/ai-playground" element={<AIPlayground />} />
           {/* 
           <Route path="/leaderboard" element={<Leaderboard />} /> 
           */}

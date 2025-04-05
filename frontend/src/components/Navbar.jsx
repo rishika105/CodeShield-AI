@@ -8,6 +8,7 @@ const Navbar = () => {
   const navItems = [
     { name: 'Security Quests', href: '/quests' },
     { name: 'Security Scanner', href: '/security-scanner' },
+    { name: 'AI Playground', href: '/ai-playground' },
     { name: 'Register/Login', href: '/auth' },
   ];
 

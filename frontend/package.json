@@ -32,6 +32,7 @@
     "react-router-dom": "^7.4.1",
     "react-scripts": "^5.0.1",
     "react-super-responsive-table": "^6.0.2",
+    "react-syntax-highlighter": "^15.6.1",
     "react-type-animation": "^3.2.0",
     "swiper": "^11.2.6",
     "video-react": "^0.16.0"
