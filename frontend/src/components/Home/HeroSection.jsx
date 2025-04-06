@@ -2,6 +2,7 @@ import SplitText from "../SplitText";
 import { Link } from "react-router-dom";
 
 const HeroSection = () => {
+  const token = localStorage.getItem("token"); // Check if token exists in local storage
   return (
     <section className="relative bg-indigoDark-900 pt-32 pb-20 overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full opacity-20">
@@ -35,12 +36,20 @@ const HeroSection = () => {
               Get actionable fixes and security enhancements tailored to your tech stack.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                to="/security-scanner"
-                className="rounded-md bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:opacity-90 transition-opacity duration-200"
-              >
-                Start Free Scan
-              </Link>
+           {
+            token ? 
+            (   <Link
+              to="/security-scanner"
+              className="rounded-md bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:opacity-90 transition-opacity duration-200"
+            >
+              Start Free Scan
+            </Link>) : ( <Link
+              to="/auth"
+              className="rounded-md bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:opacity-90 transition-opacity duration-200"
+            >
+              Start Free Scan
+            </Link>)
+           }
               <a
                 href="#"
                 className="rounded-md bg-indigoDark-700 px-6 py-3 text-lg font-semibold text-white shadow-lg hover:bg-indigoDark-600 transition-colors duration-200 border border-indigoDark-500"

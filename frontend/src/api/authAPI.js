@@ -1,7 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:5000/api/v1/auth";
+const API_URL = "http://localhost:4000/api/v1/auth";
 
 const register = async (userData, navigate) => {
   try {
@@ -9,7 +9,7 @@ const register = async (userData, navigate) => {
     if (!response.data.success) {
       throw new Error(response.data.message || "Registration failed!");
     }
-    navigate("/dashboard");
+    navigate("/profile");
     toast.success("Registration successful!");
     return response.data;
   } catch (error) {
@@ -28,7 +28,7 @@ const login = async (userData, navigate) => {
     if (!response.data.success) {
       throw new Error(response.data.message || "Login failed!");
     }
-    navigate("/dashboard");
+    navigate("/profile");
     toast.success("Login successful!");
     return response.data;
   } catch (error) {

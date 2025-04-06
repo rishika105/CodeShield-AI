@@ -8,6 +8,7 @@ import Confetti from 'react-confetti';
 import useWindowSize from '../../hooks/useWindowSize';
 import { useAuth } from '../../context/AuthContext';
 import authAPI from '../../api/authAPI';
+import Navbar from '../Navbar';
 
 const QuestChallenge = () => {
   const { id } = useParams();
@@ -169,126 +170,132 @@ const QuestChallenge = () => {
   }
 
   return (
-    <section className="relative bg-indigoDark-900 min-h-screen py-16 overflow-hidden">
-      {/* Confetti celebration */}
-      {showConfetti && (
-        <Confetti
-          width={width}
-          height={height}
-          recycle={false}
-          numberOfPieces={500}
-          gravity={0.2}
-        />
-      )}
-
-      {/* Background elements */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-20">
-        <div className="absolute inset-0 bg-[url('/src/assets/grid-pattern.svg')] bg-[length:64px_64px]"></div>
+    <>
+      <div className='absolute top-8 left-10'>
+        <Navbar />
       </div>
+      <section className="relative bg-indigoDark-900 min-h-screen py-8 overflow-hidden">
+        {/* Confetti celebration */}
+        {showConfetti && (
+          <Confetti
+            width={width}
+            height={height}
+            recycle={false}
+            numberOfPieces={500}
+            gravity={0.2}
+          />
+        )}
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-        <QuestProgress
-          questId={questId}
-          isCompleted={isCompleted}
-          userProgress={userProgress}
-        />
+        {/* Background elements */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-20">
+          <div className="absolute inset-0 bg-[url('/src/assets/grid-pattern.svg')] bg-[length:64px_64px]"></div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-          {/* Challenge Section */}
-          <div className="bg-indigoDark-800 rounded-xl p-6 border border-indigoDark-600">
-            <h2 className="text-2xl font-bold text-white mb-4">{currentQuest.title}</h2>
+        <h1 className="flex text-2xl font-bold text-white text-center p-8 items-center justify-center">Play Quest</h1>
 
-            <div className="mb-6 p-4 bg-indigoDark-900 rounded-lg">
-              <h3 className="text-lg font-semibold text-neonPurple-300 mb-2">Scenario</h3>
-              <p className="text-gray-300">{currentQuest.scenario}</p>
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+          <QuestProgress
+            questId={questId}
+            isCompleted={isCompleted}
+            userProgress={userProgress}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            {/* Challenge Section */}
+            <div className="bg-indigoDark-800 rounded-xl p-6 border border-indigoDark-600">
+              <h2 className="text-2xl font-bold text-white mb-4">{currentQuest.title}</h2>
+
+              <div className="mb-6 p-4 bg-indigoDark-900 rounded-lg">
+                <h3 className="text-lg font-semibold text-neonPurple-300 mb-2">Scenario</h3>
+                <p className="text-gray-300">{currentQuest.scenario}</p>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-semibold text-white">Vulnerable Code</h3>
+                  <button
+                    onClick={() => setShowHint(!showHint)}
+                    className="text-sm text-neonBlue-400 hover:text-neonBlue-300"
+                  >
+                    {showHint ? 'Hide Hint' : 'Need Help?'}
+                  </button>
+                </div>
+
+                {showHint && (
+                  <div className="mb-4 p-3 bg-indigoDark-700 rounded-lg border-l-4 border-neonBlue-500">
+                    <h4 className="font-medium text-white mb-1">Hints:</h4>
+                    <ul className="list-disc pl-5 text-gray-300 text-sm space-y-1">
+                      {currentQuest.solutionHints.map((hint, i) => (
+                        <li key={i}>{hint}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <pre className="bg-indigoDark-900 p-4 rounded-lg overflow-x-auto text-sm font-mono text-gray-300">
+                  {code}
+                </pre>
+              </div>
             </div>
 
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold text-white">Vulnerable Code</h3>
+            {/* Solution Section */}
+            <div className="bg-indigoDark-800 rounded-xl p-6 border border-indigoDark-600">
+              <h2 className="text-2xl font-bold text-white mb-4">Your Solution</h2>
+
+              <div className="mb-4">
+                <label htmlFor="fixedCode" className="block text-sm font-medium text-gray-300 mb-2">
+                  Rewrite the secure version below:
+                </label>
+                <textarea
+                  id="fixedCode"
+                  rows="10"
+                  className="w-full px-4 py-3 bg-indigoDark-900 border border-indigoDark-600 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-neonPurple-500"
+                  value={fixedCode}
+                  onChange={(e) => setFixedCode(e.target.value)}
+                  placeholder="// Your secure code here..."
+                  disabled={isCompleted}
+                />
+              </div>
+
+              <div className="flex justify-end gap-4">
                 <button
-                  onClick={() => setShowHint(!showHint)}
-                  className="text-sm text-neonBlue-400 hover:text-neonBlue-300"
+                  onClick={() => setFixedCode('')}
+                  className="px-4 py-2 bg-indigoDark-700 hover:bg-indigoDark-600 rounded-md text-white transition-colors"
+                  disabled={isCompleted}
                 >
-                  {showHint ? 'Hide Hint' : 'Need Help?'}
+                  Reset
+                </button>
+                <button
+                  onClick={isCompleted ? goToNextQuest : handleSubmit}
+                  className="px-6 py-2 bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 hover:opacity-90 rounded-md text-white font-medium transition-opacity"
+                >
+                  {isCompleted ? 'Next Challenge' : 'Submit Solution'}
                 </button>
               </div>
 
-              {showHint && (
-                <div className="mb-4 p-3 bg-indigoDark-700 rounded-lg border-l-4 border-neonBlue-500">
-                  <h4 className="font-medium text-white mb-1">Hints:</h4>
-                  <ul className="list-disc pl-5 text-gray-300 text-sm space-y-1">
-                    {currentQuest.solutionHints.map((hint, i) => (
-                      <li key={i}>{hint}</li>
-                    ))}
-                  </ul>
+              {isCompleted && (
+                <div className="mt-6 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
+                  <div className="flex items-center">
+                    <svg className="w-6 h-6 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <h3 className="text-lg font-bold text-white">Quest Completed!</h3>
+                  </div>
+                  <p className="text-gray-300 mt-2">
+                    Great job! You've successfully fixed the vulnerability.
+                    You've earned <span className="font-bold text-yellow-400">{currentQuest.points} XP</span>.
+                  </p>
+                  {userProgress.currentStreak > 1 && (
+                    <p className="text-gray-300 mt-1">
+                      Current streak: <span className="font-bold text-neonPurple-300">{userProgress.currentStreak} days</span>
+                    </p>
+                  )}
                 </div>
               )}
-
-              <pre className="bg-indigoDark-900 p-4 rounded-lg overflow-x-auto text-sm font-mono text-gray-300">
-                {code}
-              </pre>
             </div>
-          </div>
-
-          {/* Solution Section */}
-          <div className="bg-indigoDark-800 rounded-xl p-6 border border-indigoDark-600">
-            <h2 className="text-2xl font-bold text-white mb-4">Your Solution</h2>
-
-            <div className="mb-4">
-              <label htmlFor="fixedCode" className="block text-sm font-medium text-gray-300 mb-2">
-                Rewrite the secure version below:
-              </label>
-              <textarea
-                id="fixedCode"
-                rows="10"
-                className="w-full px-4 py-3 bg-indigoDark-900 border border-indigoDark-600 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-neonPurple-500"
-                value={fixedCode}
-                onChange={(e) => setFixedCode(e.target.value)}
-                placeholder="// Your secure code here..."
-                disabled={isCompleted}
-              />
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setFixedCode('')}
-                className="px-4 py-2 bg-indigoDark-700 hover:bg-indigoDark-600 rounded-md text-white transition-colors"
-                disabled={isCompleted}
-              >
-                Reset
-              </button>
-              <button
-                onClick={isCompleted ? goToNextQuest : handleSubmit}
-                className="px-6 py-2 bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 hover:opacity-90 rounded-md text-white font-medium transition-opacity"
-              >
-                {isCompleted ? 'Next Challenge' : 'Submit Solution'}
-              </button>
-            </div>
-
-            {isCompleted && (
-              <div className="mt-6 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
-                <div className="flex items-center">
-                  <svg className="w-6 h-6 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <h3 className="text-lg font-bold text-white">Quest Completed!</h3>
-                </div>
-                <p className="text-gray-300 mt-2">
-                  Great job! You've successfully fixed the vulnerability.
-                  You've earned <span className="font-bold text-yellow-400">{currentQuest.points} XP</span>.
-                </p>
-                {userProgress.currentStreak > 1 && (
-                  <p className="text-gray-300 mt-1">
-                    Current streak: <span className="font-bold text-neonPurple-300">{userProgress.currentStreak} days</span>
-                  </p>
-                )}
-              </div>
-            )}
           </div>
         </div>
-      </div>
-    </section>
+      </section></>
   );
 };
 
