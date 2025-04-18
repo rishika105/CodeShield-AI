@@ -18,7 +18,7 @@ const Navbar = () => {
     ? [
       { name: 'Security Quests', href: '/quests' },
       { name: 'Security Scanner', href: '/security-scanner' },
-      { name: 'Deep Analyser', href: '/ai-playground' },
+      { name: 'Deep Analyzer', href: '/ai-playground' },
       { name: 'LeaderBoard', href: '/leaderboard' },
     ]
     : [];
