@@ -12,7 +12,7 @@ const HeroSection = () => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-gradient-radial from-neonPurple-500/30 to-transparent rounded-full filter blur-3xl opacity-20"></div>
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center">
+        <div className="flex flex-col lg:flex-row items-center gap-8">
           <div className="lg:w-1/2 text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold  text-gradient-to-r from-neonCyan-400 to-neonBlue-400 leading-tight mb-6">
 

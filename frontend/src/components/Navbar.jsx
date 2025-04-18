@@ -18,7 +18,7 @@ const Navbar = () => {
     ? [
       { name: 'Security Quests', href: '/quests' },
       { name: 'Security Scanner', href: '/security-scanner' },
-      { name: 'AI Playground', href: '/ai-playground' },
+      { name: 'Deep Analyser', href: '/ai-playground' },
       { name: 'LeaderBoard', href: '/leaderboard' },
     ]
     : [];
@@ -66,7 +66,7 @@ const Navbar = () => {
             <HiBars3 className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
-        
+
         <div className="hidden lg:flex lg:gap-x-12">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href;
