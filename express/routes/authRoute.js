@@ -8,7 +8,7 @@ const {
   updateQuestProgress,
   updateSecurityScore,
   unlockBadge
-} = require('../controllers/authController');
+} = require('../controllers/AuthController');
 const { protect } = require('../middlewares/auth');
 
 router.post('/register', register);
