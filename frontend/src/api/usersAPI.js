@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/v1/users";
+const BASE_URL = import.meta.env.VITE_EXPRESS_SERVER_URL;
+const API_URL = `${BASE_URL}/users`;
 
 const getUserProfile = async (userId, token) => {
   const config = {

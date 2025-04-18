@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import SecurityNavbar from '../components/SecurityNavbar';
 import Navbar from '../components/Navbar';
 
 const SecurityScanner = () => {
@@ -128,8 +127,8 @@ const SecurityScanner = () => {
           // Don't add comment if we're going to replace the line with a fix
           if (!specificFix) {
             const commentText = `# SECURITY: ${vuln.vulnerability_type} - ${vuln.suggested_fix ?
-                vuln.suggested_fix.replace(/```[\s\S]*?```/g, '').trim() :
-                'Consider revising this code for security'
+              vuln.suggested_fix.replace(/```[\s\S]*?```/g, '').trim() :
+              'Consider revising this code for security'
               }`;
 
             // Wrap long comments
@@ -201,7 +200,7 @@ const SecurityScanner = () => {
                 Analyze your code for potential security vulnerabilities
               </p>
               <div className="mt-2">
-                <span className={`px-3 py-1 rounded-full text-xs ${backendStatus === 'connected'
+                {/* <span className={`px-3 py-1 rounded-full text-xs ${backendStatus === 'connected'
                     ? 'bg-green-900 text-green-300'
                     : backendStatus === 'checking'
                       ? 'bg-yellow-900 text-yellow-300'
@@ -212,7 +211,17 @@ const SecurityScanner = () => {
                     : backendStatus === 'checking'
                       ? 'Checking...'
                       : 'Not Connected'}
-                </span>
+                </span> */}
+                {(() => {
+                  if (backendStatus === 'connected') {
+                    console.log('🟢 Connected');
+                  } else if (backendStatus === 'checking') {
+                    console.log('🟡 Checking...');
+                  } else {
+                    console.log('🔴 Not Connected');
+                  }
+                })()}
+
               </div>
             </header>
 
@@ -326,8 +335,8 @@ const SecurityScanner = () => {
                             <p className="text-gray-400">Security Score:</p>
                             <div className="flex items-center">
                               <div className={`text-xl font-bold ${results.score.score > 30 ? 'text-green-400' :
-                                  results.score.score > 10 ? 'text-yellow-400' :
-                                    'text-red-400'
+                                results.score.score > 10 ? 'text-yellow-400' :
+                                  'text-red-400'
                                 }`}>
                                 {results.score.score}
                               </div>
@@ -338,8 +347,8 @@ const SecurityScanner = () => {
                           <div className="w-full bg-indigoDark-900 rounded-full h-2.5 mt-2">
                             <div
                               className={`h-2.5 rounded-full ${results.score.score > 30 ? 'bg-green-500' :
-                                  results.score.score > 10 ? 'bg-yellow-500' :
-                                    'bg-red-500'
+                                results.score.score > 10 ? 'bg-yellow-500' :
+                                  'bg-red-500'
                                 }`}
                               style={{ width: `${Math.max(0, Math.min(100, (results.score.score / results.score.base_score) * 100))}%` }}
                             ></div>

@@ -1,6 +1,5 @@
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import AuthPage from './pages/AuthPage';
@@ -13,14 +12,11 @@ import ProfilePage from './pages/ProfilePage';
 import LeaderboardPage from './pages/LeaderBoardPage';
 
 function App() {
-  const location = useLocation();
-  const showNavbar = !location.pathname.includes('/security-scanner');
   const token = localStorage.getItem('token'); // Check if token exists in local storage
 
   return (
     <AuthProvider>
       <div className="w-full min-h-screen flex flex-col items-center justify-center">
-
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
@@ -35,10 +31,6 @@ function App() {
               <Route path="/leaderboard" element={<LeaderboardPage />} />
             </>
           )}
-
-          {/* 
-          <Route path="/leaderboard" element={<Leaderboard />} /> 
-          */}
         </Routes>
       </div>
     </AuthProvider>

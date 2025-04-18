@@ -13,9 +13,9 @@ const AuthPage = () => {
     <Navbar />
     </div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-96 bg-gradient-radial from-neonPurple-500/30 to-transparent rounded-full filter blur-3xl opacity-20"></div>
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="relative mx-auto px-0 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center justify-center">
-          <div className="w-[500px] mt-10">
+          <div className="w-[320px] lg:w-[500px] mt-10">
             <div className="relative bg-indigoDark-800 rounded-2xl p-8 shadow-2xl border border-indigoDark-600">
               {/* Glow effect */}
               <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-neonPurple-500/30 to-neonBlue-500/30 blur opacity-75"></div>

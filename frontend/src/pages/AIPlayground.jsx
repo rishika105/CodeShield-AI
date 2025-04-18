@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import SecurityNavbar from '../components/SecurityNavbar';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaInfoCircle, FaExclamationTriangle, FaCheckCircle, FaSearch, FaTimes } from 'react-icons/fa';
@@ -643,7 +642,7 @@ def process_user_data(user_data):
                   )}
                 </div>
 
-                <span className={`px-3 py-1 rounded-full text-xs flex items-center ${backendStatus === 'connected'
+                {/* <span className={`px-3 py-1 rounded-full text-xs flex items-center ${backendStatus === 'connected'
                   ? 'bg-green-900 text-green-300'
                   : backendStatus === 'checking'
                     ? 'bg-yellow-900 text-yellow-300'
@@ -665,7 +664,16 @@ def process_user_data(user_data):
                       Not Connected
                     </>
                   )}
-                </span>
+                </span> */}
+                {(() => {
+                  if (backendStatus === 'connected') {
+                    console.log('🟢 Connected');
+                  } else if (backendStatus === 'checking') {
+                    console.log('🟡 Checking...');
+                  } else {
+                    console.log('🔴 Not Connected');
+                  }
+                })()}
               </div>
             </div>
 
@@ -721,10 +729,10 @@ def process_user_data(user_data):
             </div>
           ) : isEditing ? (
             <div className="flex-grow flex flex-col">
-              <div className="flex-grow">
+              <div className="">
                 <textarea
                   ref={textareaRef}
-                  className="w-full h-full min-h-[300px] bg-indigoDark-800 text-white font-mono text-sm p-4 rounded-lg resize-none border border-indigoDark-600 focus:outline-none focus:border-indigo-500"
+                  className="w-full lg:w-[700px] 2xl:w-[900px] h-full min-h-[300px] bg-indigoDark-800 text-white font-mono text-sm p-4 rounded-lg resize-none border border-indigoDark-600 focus:outline-none focus:border-indigo-500"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Enter or paste your code here..."

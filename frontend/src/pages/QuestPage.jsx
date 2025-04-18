@@ -15,6 +15,7 @@ const QuestsPage = () => {
         const savedProgress = localStorage.getItem('questProgress');
         if (savedProgress) {
             setUserProgress(JSON.parse(savedProgress));
+            console.log('User progress loaded:', JSON.parse(savedProgress));
         } else {
             setUserProgress({
                 completedQuests: [],

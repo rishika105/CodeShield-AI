@@ -46,6 +46,24 @@ const QuestChallenge = () => {
     }
   }, [token]);
 
+  // Add this at the beginning of the QuestChallenge component
+  useEffect(() => {
+    // Check if this quest is already completed
+    if (userProgress?.completedQuests?.includes(questId)) {
+      setIsCompleted(true);
+      toast.info("You've already completed this quest!", {
+        position: "top-center",
+        duration: 3000
+      });
+    }
+  }, [questId, userProgress]);
+
+  // And add logic to disable replaying in the render:
+  // In the textarea:
+
+
+
+
   const handleSubmit = async () => {
     if (!currentQuest || !token) return;
 
@@ -254,6 +272,7 @@ const QuestChallenge = () => {
                   onChange={(e) => setFixedCode(e.target.value)}
                   placeholder="// Your secure code here..."
                   disabled={isCompleted}
+                  
                 />
               </div>
 
@@ -265,9 +284,11 @@ const QuestChallenge = () => {
                 >
                   Reset
                 </button>
+
                 <button
                   onClick={isCompleted ? goToNextQuest : handleSubmit}
                   className="px-6 py-2 bg-gradient-to-r from-neonPurple-500 to-neonBlue-500 hover:opacity-90 rounded-md text-white font-medium transition-opacity"
+                  disabled={isCompleted && userProgress?.completedQuests?.includes(questId)}
                 >
                   {isCompleted ? 'Next Challenge' : 'Submit Solution'}
                 </button>
@@ -295,7 +316,8 @@ const QuestChallenge = () => {
             </div>
           </div>
         </div>
-      </section></>
+      </section>
+    </>
   );
 };
 

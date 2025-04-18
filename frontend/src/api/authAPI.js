@@ -1,7 +1,8 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:4000/api/v1/auth";
+const BASE_URL = import.meta.env.VITE_EXPRESS_SERVER_URL;
+const API_URL = `${BASE_URL}/auth`;
 
 const register = async (userData, navigate) => {
   try {

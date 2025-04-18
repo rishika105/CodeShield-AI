@@ -6,7 +6,7 @@ const difficultyColors = {
   3: 'from-red-400 to-rose-500'
 };
 
-const QuestCard = ({ id, title, difficulty, category, points, completed, timeEstimate }) => {
+const QuestCard = ({ id, title, difficulty, category, points, completed, timeEstimate, description, tags = [] }) => {
   return (
     <div className="relative bg-indigoDark-800 rounded-xl overflow-hidden border border-indigoDark-600 hover:border-neonPurple-400 transition-all duration-300 hover:shadow-lg hover:shadow-neonPurple-500/10">
       {/* Difficulty indicator */}
@@ -34,12 +34,17 @@ const QuestCard = ({ id, title, difficulty, category, points, completed, timeEst
             <h3 className="ml-4 text-xl font-bold text-white">{title}</h3>
           </div>
           
-          <p className="text-gray-300 mb-6">Identify and fix vulnerabilities in this e-commerce application's checkout system.</p>
+          <p className="text-gray-300 mb-6">{description || "Identify and fix vulnerabilities in this application."}</p>
           
           <div className="flex flex-wrap gap-2 mb-6">
-            <span className="px-2 py-1 bg-indigoDark-700 rounded-md text-xs text-neonBlue-300">SQL Injection</span>
-            <span className="px-2 py-1 bg-indigoDark-700 rounded-md text-xs text-neonPurple-300">Database</span>
-            <span className="px-2 py-1 bg-indigoDark-700 rounded-md text-xs text-neonCyan-300">Web Security</span>
+            {tags.map((tag, index) => (
+              <span key={index} className={`px-2 py-1 bg-indigoDark-700 rounded-md text-xs ${
+                index % 3 === 0 ? 'text-neonBlue-300' : 
+                index % 3 === 1 ? 'text-neonPurple-300' : 'text-neonCyan-300'
+              }`}>
+                {tag}
+              </span>
+            ))}
           </div>
           
           <div className="flex justify-between items-center">
