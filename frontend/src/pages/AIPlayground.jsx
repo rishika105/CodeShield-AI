@@ -94,7 +94,7 @@ def process_user_data(user_data):
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/health');
+        const response = await axios.get(`${import.meta.env.VITE_FLASK_SERVER_URL}/api/health`);
         if (response.data && response.data.status === 'healthy') {
           setBackendStatus('connected');
           setCode(exampleCode[language] || '');
@@ -127,7 +127,7 @@ def process_user_data(user_data):
 
       console.log('Analyzing code:', code);
 
-      const response = await fetch('http://localhost:5000/api/advanced-scan', {
+      const response = await fetch(`${import.meta.env.VITE_FLASK_SERVER_URL}/api/advanced-scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

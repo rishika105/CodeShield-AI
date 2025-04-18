@@ -19,7 +19,7 @@ const SecurityScanner = () => {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/health');
+        const response = await axios.get(`${import.meta.env.VITE_FLASK_SERVER_URL}/api/health`);
         if (response.data && response.data.status === 'healthy') {
           setBackendStatus('connected');
           fetchLanguages();
@@ -38,7 +38,7 @@ const SecurityScanner = () => {
   // Fetch supported languages
   const fetchLanguages = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/languages');
+      const response = await axios.get(`${import.meta.env.VITE_FLASK_SERVER_URL}/api/languages`);
       if (response.data && response.data.success) {
         setLanguages(response.data.data);
       }
@@ -54,7 +54,7 @@ const SecurityScanner = () => {
     setSecureCode('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/scan', {
+      const response = await axios.post(`${import.meta.env.VITE_FLASK_SERVER_URL}/api/scan`, {
         code,
         language,
         useVulberta,
