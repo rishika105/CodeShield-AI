@@ -6,6 +6,9 @@ CodeShield AI is a **GenAI-powered cybersecurity tool** built to help developers
 
 ---
 
+
+
+
 ## 🚀 Features
 
 - 🔍 **Multi-Model Vulnerability Detection**  
@@ -24,6 +27,10 @@ CodeShield AI is a **GenAI-powered cybersecurity tool** built to help developers
   Role-based login/signup system built with Node.js and Express, ensuring secure and scalable user management.
 
 ---
+
+## Video Demo
+
+https://github.com/user-attachments/assets/68e495b2-9216-430a-bb97-0eda39644f60
 
 ## 🧱 Tech Stack
 
